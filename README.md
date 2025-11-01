@@ -227,5 +227,4 @@ O playground GraphQL estará disponível em:
 
 Se este projeto for útil para você e quiser apoiar o desenvolvimento, considere fazer uma doação:
 
-**Pix:** [igorhconstant@icloud.com](mailto:igorhconstant@icloud.com)
-**PayPal:** [https://paypal.me/igorhconstant](https://paypal.me/igorhconstant)
+**Pix:** [igorhenriqueconstant@gmail.com](mailto:igorhenriqueconstant@gmail.com)
