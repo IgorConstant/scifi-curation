@@ -1,0 +1,30 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./scifi.db" // arquivo SQLite local
+}
+
+generator client {
+  provider = "prisma-client-js" // gera o cliente JS para consultas
+}
+
+model Work {
+  id            Int            @id @default(autoincrement())
+  title         String
+  type          String
+  subgenre      String?
+  year          Int?
+  creator       String?
+  synopsis      String?
+  rating        Float?
+  relatedFrom   RelatedWork[]  @relation("WorkRelationsFrom")
+  relatedTo     RelatedWork[]  @relation("WorkRelationsTo")
+}
+
+model RelatedWork {
+  id              Int     @id @default(autoincrement())
+  relationType    String
+  fromWorkId      Int
+  toWorkId        Int
+  fromWork        Work    @relation("WorkRelationsFrom", fields: [fromWorkId], references: [id])
+  toWork          Work    @relation("WorkRelationsTo", fields: [toWorkId], references: [id])
+}
