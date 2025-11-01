@@ -3,8 +3,8 @@ import { ApolloServer } from 'apollo-server-express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from './utils/rateLimiter.js';
-import { typeDefs } from './schema/typeDefs.js';
-import { resolvers } from './schema/resolvers.js';
+import typeDefs from './schema/typeDefs.js';
+import resolvers from './schema/resolvers.js';
 import { PrismaClient } from '@prisma/client';
 
 dotenv.config();

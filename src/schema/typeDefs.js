@@ -1,42 +1,53 @@
 import { gql } from "apollo-server-express";
 
-export const typeDefs = gql`
+const typeDefs = gql`
   type Work {
     id: Int!
     title: String!
     type: String!
-    subgenre: String
     year: Int
     creator: String
+    subgenre: String
     synopsis: String
     rating: Float
-    relatedWorks: [RelatedWork!]!
+    relatedFrom: [RelatedWork]
+    relatedTo: [RelatedWork]
   }
 
   type RelatedWork {
     id: Int!
     relationType: String!
+    fromWork: Work!
     toWork: Work!
   }
 
-  type Query {
-    # Listar todas as obras
-    works: [Work!]!
+  input WorkInput {
+    title: String!
+    type: String!
+    year: Int
+    creator: String
+    subgenre: String
+    synopsis: String
+    rating: Float
+  }
 
-    # Listar por ID ou por termo no título
-    work(id: Int, term: String): [Work!]!
+  input RelatedWorkInput {
+    relationType: String!
+    fromWorkId: Int!
+    toWorkId: Int!
+  }
+
+  type Query {
+    works: [Work!]!
+    work(id: Int!): Work
+    searchWorks(term: String!): [Work!]!
+    relations: [RelatedWork!]!
   }
 
   type Mutation {
-    # Adicionar uma nova obra
-    addWork(
-      title: String!
-      type: String!
-      subgenre: String
-      year: Int
-      creator: String
-      synopsis: String
-      rating: Float
-    ): Work!
+    addWork(data: WorkInput!): Work!
+    addRelation(data: RelatedWorkInput!): RelatedWork!
   }
 `;
+
+export default typeDefs;

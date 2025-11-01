@@ -1,49 +1,76 @@
 import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
-export const resolvers = {
+const resolvers = {
   Query: {
-    // Listar todas as obras
+    // 🔹 Retorna todas as obras
     works: async () => {
-      return prisma.work.findMany();
+      return await prisma.work.findMany({
+        include: {
+          relatedFrom: { include: { toWork: true } },
+          relatedTo: { include: { fromWork: true } },
+        },
+      });
     },
 
-    // Buscar por ID ou termo no título
-    work: async (_, { id, term }) => {
-      if (id) {
-        const work = await prisma.work.findUnique({ where: { id } });
-        return work ? [work] : [];
-      }
+    // 🔹 Retorna uma obra específica por ID
+    work: async (_, { id }) => {
+      return await prisma.work.findUnique({
+        where: { id },
+        include: {
+          relatedFrom: { include: { toWork: true } },
+          relatedTo: { include: { fromWork: true } },
+        },
+      });
+    },
 
-      if (term) {
-        return prisma.work.findMany({
-          where: { title: { contains: term, mode: "insensitive" } },
-        });
-      }
+    // 🔹 Busca por termo (título, sinopse ou criador)
+    searchWorks: async (_, { term }) => {
+      return await prisma.work.findMany({
+        where: {
+          OR: [
+            { title: { contains: term, mode: "insensitive" } },
+            { synopsis: { contains: term, mode: "insensitive" } },
+            { creator: { contains: term, mode: "insensitive" } },
+          ],
+        },
+      });
+    },
 
-      return [];
+    // 🔹 Retorna todas as relações entre obras
+    relations: async () => {
+      return await prisma.relatedWork.findMany({
+        include: {
+          fromWork: true,
+          toWork: true,
+        },
+      });
     },
   },
 
   Mutation: {
-    // Adicionar obra dinamicamente
-    addWork: async (_, args) => {
-      return prisma.work.create({ data: { ...args } });
+    // 🔹 Adiciona uma nova obra
+    addWork: async (_, { data }) => {
+      return await prisma.work.create({ data });
     },
-  },
 
-  Work: {
-    // Resolver para as obras relacionadas
-    relatedWorks: async (parent) => {
-      const relations = await prisma.relatedWork.findMany({
-        where: { fromWorkId: parent.id },
-        include: { toWork: true },
+    // 🔹 Adiciona uma relação entre duas obras
+    addRelation: async (_, { data }) => {
+      const { fromWorkId, toWorkId, relationType } = data;
+
+      return await prisma.relatedWork.create({
+        data: {
+          relationType,
+          fromWork: { connect: { id: fromWorkId } },
+          toWork: { connect: { id: toWorkId } },
+        },
+        include: {
+          fromWork: true,
+          toWork: true,
+        },
       });
-
-      return relations.map((r) => ({
-        relationType: r.relationType,
-        toWork: r.toWork,
-      }));
     },
   },
 };
+
+export default resolvers;
